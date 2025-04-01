@@ -23,9 +23,9 @@ if 'AZURE_STORAGE_CONNECTION_STRING' in os.environ:
     suffix = max(
         int(container.name.split("-")[-1])
         for container in containers
-        if container.name.startswith("hikeplanner-model")
+        if container.name.startswith("skitourplanner-model")
     )
-    model_folder = f"hikeplanner-model-{suffix}"
+    model_folder = f"skitourplanner-model-{suffix}"
     print(f"using model {model_folder}")
     
     container_client = blob_service_client.get_container_client(model_folder)
@@ -34,7 +34,7 @@ if 'AZURE_STORAGE_CONNECTION_STRING' in os.environ:
 
     # Download the blob to a local file
     Path("../model").mkdir(parents=True, exist_ok=True)
-    download_file_path = os.path.join("../model", "GradientBoostingRegressor.pkl")
+    download_file_path = os.path.join("../model", "gradient_boosting_model.pkl")
     print(f"downloading blob to {download_file_path}")
 
     with open(file=download_file_path, mode="wb") as download_file:
@@ -44,7 +44,7 @@ else:
     print("CANNOT ACCESS AZURE BLOB STORAGE - Please set AZURE_STORAGE_CONNECTION_STRING. Current env: ")
     print(os.environ)
 
-file_path = Path(".", "../model/", "GradientBoostingRegressor.pkl")
+file_path = Path(".", "../model/", "gradient_boosting_model.pkl")
 with open(file_path, 'rb') as fid:
     model = pickle.load(fid)
 
