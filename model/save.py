@@ -29,7 +29,7 @@ try:
     for container in containers:
         existingContainerName = container['name']
         print(existingContainerName, container['metadata'])
-        if existingContainerName.startswith("hikeplanner-model"):
+        if existingContainerName.startswith("skitourplanner-model"):
             parts = existingContainerName.split("-")
             print(parts)
             if (len(parts) == 3):
@@ -38,7 +38,7 @@ try:
                     suffix = newSuffix
 
     suffix += 1
-    container_name = str("hikeplanner-model-" + str(suffix))
+    container_name = str("skitourplanner-model-" + str(suffix))
     print("new container name: ")
     print(container_name)
 
@@ -52,7 +52,7 @@ try:
         # Create the container
         container_client = blob_service_client.create_container(container_name)
 
-    local_file_name = "GradientBoostingRegressor.pkl"
+    local_file_name = "gradient_boosting_model.pkl"
     upload_file_path = os.path.join(".", local_file_name)
 
     # Create a blob client using the local file name as the name for the blob

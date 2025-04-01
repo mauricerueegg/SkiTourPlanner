@@ -3,6 +3,10 @@ import os
 import argparse
 from pymongo import MongoClient
 
+# Dynamischer Pfad zur Datei
+script_dir = os.path.dirname(os.path.abspath(__file__))
+input_file = os.path.join(script_dir, "downloads/skitouren_daten.jl")
+
 def import_to_mongodb(mongo_uri, db_name, collection_name, input_file):
     # Verbindung zu MongoDB herstellen
     client = MongoClient(mongo_uri)
@@ -10,12 +14,14 @@ def import_to_mongodb(mongo_uri, db_name, collection_name, input_file):
     collection = db[collection_name]
 
     # Daten aus der .jl-Datei lesen und in MongoDB einfügen
+    count = 0  # Zähler initialisieren
     with open(input_file, "r", encoding="utf-8") as f:
         for line in f:
             doc = json.loads(line)
             collection.insert_one(doc)
+            count += 1  # Zähler erhöhen
 
-    print(f"✅ Daten erfolgreich in {db_name}.{collection_name} importiert")
+    print(f"✅ Daten erfolgreich in {db_name}.{collection_name} importiert: {count} Datensätze")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Importiere Daten in MongoDB.")
