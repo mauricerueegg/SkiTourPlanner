@@ -18,7 +18,6 @@ try:
     # Create the BlobServiceClient object
     blob_service_client = BlobServiceClient.from_connection_string(args.connection)
 
-    # account_url = "https://mosazhaw.blob.core.windows.net"
     # default_credential = DefaultAzureCredential()
     # Create the BlobServiceClient object
     # blob_service_client = BlobServiceClient(account_url, credential=default_credential)
