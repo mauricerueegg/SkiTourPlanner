@@ -1,0 +1,101 @@
+[
+  {
+    "url": "https://www.skitourenguru.ch/track-view?area=ch&id=1",
+    "Gipfel": "Poncione di Braga (2855 m)",
+    "Start": "Piano di Peccia (1032 m)",
+    "Höhendifferenz": "1827 hm",
+    "Routenlänge": "8760 m",
+    "Aufstiegszeit": "6h 10'",
+    "Schnee": "0​–​172  (Ø 57) cm, 58​%",
+    "Schwierigkeitsgrad": "WS+ (manuell)",
+    "Lawinenrisiko": "1.74"
+  },
+  {
+    "url": "https://www.skitourenguru.ch/track-view?area=ch&id=2",
+    "Gipfel": "Cima di Sassalto (2426 m)",
+    "Start": "Fusio (1280 m)",
+    "Höhendifferenz": "1145 hm",
+    "Routenlänge": "4894 m",
+    "Aufstiegszeit": "3h 40'",
+    "Schnee": "2​–​68  (Ø 23) cm, 39​%",
+    "Schwierigkeitsgrad": "ZS− (manuell)",
+    "Lawinenrisiko": "1.60"
+  },
+  {
+    "url": "https://www.skitourenguru.ch/track-view?area=ch&id=3",
+    "Gipfel": "Pizzo Canà (2942 m)",
+    "Start": "Fusio (1280 m)",
+    "Höhendifferenz": "1661 hm",
+    "Routenlänge": "6724 m",
+    "Aufstiegszeit": "5h 20'",
+    "Schnee": "2​–​164  (Ø 63) cm, 63​%",
+    "Schwierigkeitsgrad": "S− (manuell)",
+    "Lawinenrisiko": "2.10"
+  },
+  {
+    "url": "https://www.skitourenguru.ch/track-view?area=ch&id=4",
+    "Gipfel": "Blaubergstock (2863 m)",
+    "Start": "Realp (1537 m)",
+    "Höhendifferenz": "1326 hm",
+    "Routenlänge": "3742 m",
+    "Aufstiegszeit": "3h 50'",
+    "Schnee": "16​–​159  (Ø 77) cm, 90​%",
+    "Schwierigkeitsgrad": "ZS+ (manuell)",
+    "Lawinenrisiko": "1.48"
+  },
+  {
+    "url": "https://www.skitourenguru.ch/track-view?area=ch&id=5",
+    "Gipfel": "Tällistock (2797 m)",
+    "Start": "Oberwald (1364 m)",
+    "Höhendifferenz": "1433 hm",
+    "Routenlänge": "5797 m",
+    "Aufstiegszeit": "4h 30'",
+    "Schnee": "26​–​131  (Ø 65) cm, 100​%",
+    "Schwierigkeitsgrad": "WS− (manuell)",
+    "Lawinenrisiko": "1.23"
+  },
+  {
+    "url": "https://www.skitourenguru.ch/track-view?area=ch&id=6",
+    "Gipfel": "Pizzo Pesciora (3114 m)",
+    "Start": "Ronco (1476 m)",
+    "Höhendifferenz": "1639 hm",
+    "Routenlänge": "4292 m",
+    "Aufstiegszeit": "4h 40'",
+    "Schnee": "14​–​181  (Ø 100) cm, 93​%",
+    "Schwierigkeitsgrad": "ZS+ (manuell)",
+    "Lawinenrisiko": "1.96"
+  },
+  {
+    "url": "https://www.skitourenguru.ch/track-view?area=ch&id=7",
+    "Gipfel": "Pizzo Lucendro (2958 m)",
+    "Start": "Villa (1362 m)",
+    "Höhendifferenz": "1597 hm",
+    "Routenlänge": "6161 m",
+    "Aufstiegszeit": "5h",
+    "Schnee": "10​–​180  (Ø 81) cm, 74​%",
+    "Schwierigkeitsgrad": "ZS (manuell)",
+    "Lawinenrisiko": "1.73"
+  },
+  {
+    "url": "https://www.skitourenguru.ch/track-view?area=ch&id=8",
+    "Gipfel": "Sidelhorn (2761 m)",
+    "Start": "Oberwald (1364 m)",
+    "Höhendifferenz": "1397 hm",
+    "Routenlänge": "5324 m",
+    "Aufstiegszeit": "4h 20'",
+    "Schnee": "11​–​138  (Ø 66) cm, 75​%",
+    "Schwierigkeitsgrad": "WS− (manuell)",
+    "Lawinenrisiko": "1.13"
+  },
+  {
+    "url": "https://www.skitourenguru.ch/track-view?area=ch&id=9",
+    "Gipfel": "Blashorn (2777 m)",
+    "Start": "Ulrichen (1347 m)",
+    "Höhendifferenz": "1431 hm",
+    "Routenlänge": "6627 m",
+    "Aufstiegszeit": "4h 50'",
+    "Schnee": "25​–​161  (Ø 81) cm, 100​%",
+    "Schwierigkeitsgrad": "ZS (manuell)",
+    "Lawinenrisiko": "1.78"
+  }
+]
