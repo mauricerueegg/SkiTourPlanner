@@ -1,0 +1,43 @@
+/Users/mauriceruegg/Library/CloudStorage/OneDrive-ZHAW/6. Semester/Model Deployment/SkiTourPlanner/model/model.py:25: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df["Gipfelhöhe"] = df["Gipfel"].str.extract(r"(\d+)").astype(int)
+/Users/mauriceruegg/Library/CloudStorage/OneDrive-ZHAW/6. Semester/Model Deployment/SkiTourPlanner/model/model.py:26: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df["Höhendifferenz"] = df["Höhendifferenz"].str.replace("\u2006", "", regex=False).str.replace("hm", "", regex=False).astype(int)
+/Users/mauriceruegg/Library/CloudStorage/OneDrive-ZHAW/6. Semester/Model Deployment/SkiTourPlanner/model/model.py:27: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df["Routenlänge"] = df["Routenlänge"].str.replace("\u2006", "", regex=False).str.replace("m", "", regex=False).astype(int)
+/Users/mauriceruegg/Library/CloudStorage/OneDrive-ZHAW/6. Semester/Model Deployment/SkiTourPlanner/model/model.py:28: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df["Schnee"] = df["Schnee"].str.extract(r"Ø (\d+)").astype(int)
+/Users/mauriceruegg/Library/CloudStorage/OneDrive-ZHAW/6. Semester/Model Deployment/SkiTourPlanner/model/model.py:29: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df["Lawinenrisiko"] = df["Lawinenrisiko"].astype(float)
+/Users/mauriceruegg/Library/CloudStorage/OneDrive-ZHAW/6. Semester/Model Deployment/SkiTourPlanner/model/model.py:39: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df["Schwierigkeitsgrad_num"] = df["Schwierigkeitsgrad"].apply(transform_difficulty)
+✅ Daten erfolgreich vorverarbeitet.
+✅ Modell erfolgreich trainiert.
+R²-Score: 0.7947919555014493
+MSE: 0.06773811343662943
+✅ Modell gespeichert als 'gradient_boosting_model.pkl'.
+
+

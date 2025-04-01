@@ -1,0 +1,90 @@
+cosmosshelluser@SandboxHost-638790896666768777:~$Enter password: ********************
+Current Mongosh Log ID: 67eba6c80cef26d5a5c2ac59
+Connecting to:          mongodb+srv://<credentials>@mdmcluster.mongocluster.cosmos.azure.com/?authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000&appName=mongosh+1.10.1
+Using MongoDB:          7.0.0
+Using Mongosh:          1.10.1
+
+For mongosh info see: https://docs.mongodb.com/mongodb-shell/
+
+
+To help improve our products, anonymous usage data is collected and sent to MongoDB periodically (https://www.mongodb.com/legal/privacy-policy).
+You can opt-out by running the disableTelemetry() command.
+
+[mongos] test> show dbs
+skitouren  0 B
+[mongos] test> use skitouren
+switched to db skitouren
+[mongos] skitouren> show collections
+skitour
+tracks
+[mongos] skitouren> show skitours
+MongoshInvalidInputError: [COMMON-10001] 'skitours' is not a valid argument for "show".
+[mongos] skitouren> db.skitour.find().limit(5).pretty()
+[
+  {
+    _id: ObjectId("67eba5bdc71f66a8b98a523a"),
+    url: 'https://www.skitourenguru.ch/track-view?area=ch&id=78',
+    Gipfel: 'Giglistock (2893 m)',
+    Start: 'Steingletscher (1864 m)',
+    'Höhendifferenz': '1029 hm',
+    'Routenlänge': '5487 m',
+    Aufstiegszeit: "3h 40'",
+    Schwierigkeitsgrad: 'WS− (manuell)',
+    Schnee: '88​–​219  (Ø 148) cm, 100​%',
+    Lawinenrisiko: '1.85'
+  },
+  {
+    _id: ObjectId("67eba5bfc71f66a8b98a523b"),
+    url: 'https://www.skitourenguru.ch/track-view?area=ch&id=62',
+    Gipfel: 'Landvogtehore (2613 m)',
+    Start: 'Hindere Fildrich (1338 m)',
+    'Höhendifferenz': '1276 hm',
+    'Routenlänge': '4578 m',
+    Aufstiegszeit: '4h',
+    Schwierigkeitsgrad: 'ZS+ (manuell)',
+    Schnee: '1​–​174  (Ø 70) cm, 72​%',
+    Lawinenrisiko: '1.19'
+  },
+  {
+    _id: ObjectId("67eba5bfc71f66a8b98a523c"),
+    url: 'https://www.skitourenguru.ch/track-view?area=ch&id=71',
+    Gipfel: 'Wildstrubel (3240 m)',
+    Start: 'Engstligenalp (1963 m)',
+    'Höhendifferenz': '1297 hm',
+    'Routenlänge': '7248 m',
+    Aufstiegszeit: "4h 40'",
+    Schwierigkeitsgrad: 'WS+ (manuell)',
+    Schnee: '67​–​242  (Ø 159) cm, 100​%',
+    Lawinenrisiko: '1.66'
+  },
+  {
+    _id: ObjectId("67eba5bfc71f66a8b98a523d"),
+    url: 'https://www.skitourenguru.ch/track-view?area=ch&id=57',
+    Gipfel: 'Drunegalm (2405 m)',
+    Start: 'Oey (671 m)',
+    'Höhendifferenz': '1734 hm',
+    'Routenlänge': '6830 m',
+    Aufstiegszeit: "5h 30'",
+    Schwierigkeitsgrad: 'ZS− (manuell)',
+    Schnee: '0​–​48  (Ø 13) cm, 33​%',
+    Lawinenrisiko: '0.94'
+  },
+  {
+    _id: ObjectId("67eba5bfc71f66a8b98a523e"),
+    url: 'https://www.skitourenguru.ch/track-view?area=ch&id=136',
+    Gipfel: 'Piz Titschal (2543 m)',
+    Start: 'St. Martin (1317 m)',
+    'Höhendifferenz': '1230 hm',
+    'Routenlänge': '5473 m',
+    Aufstiegszeit: '4h',
+    Schwierigkeitsgrad: 'L (manuell)',
+    Schnee: '15​–​144  (Ø 75) cm, 95​%',
+    Lawinenrisiko: '1.21'
+  }
+]
+[mongos] skitouren> db.skitour.countDocuments()
+10
+[mongos] skitouren> db.tracks.drop()
+true
+[mongos] skitouren> show collections
+skitour

@@ -1,123 +1,94 @@
-# new terminal
-# cd model
-# python model.py -u 'MONGO_DB_CONNECTION_STRING'
-
 import argparse
-
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sn
 from pymongo import MongoClient
-
-parser = argparse.ArgumentParser(description='Create Model')
-parser.add_argument('-u', '--uri', required=True, help="mongodb uri with username/password")
-args = parser.parse_args()
-
-mongo_uri = args.uri
-mongo_db = "tracks"
-mongo_collection = "tracks"
-
-client = MongoClient(mongo_uri)
-db = client[mongo_db]
-collection = db[mongo_collection]
-
-# fetch a single document
-track = collection.find_one(projection={"gpx": 0, "url": 0, "bounds": 0, "name": 0})
-values = [track.values() for track in collection.find(projection={"gpx": 0, "url": 0, "bounds": 0, "name": 0})]
-
-# we later use track document's field names to label the columns of the dataframe
-df = pd.DataFrame(columns=track.keys(), data=values).set_index("_id")
-
-df['avg_speed'] = df['length_3d']/df['moving_time']
-df['difficulty_num'] = df['difficulty'].map(lambda x: int(x[1])).astype('int32')
-
-# drop na values
-df.dropna()
-df = df[df['avg_speed'] < 2] # an avg of > 2m/s is probably not a hiking activity
-df = df[df['min_elevation'] > 0]
-df = df[df['length_2d'] < 100000]
-
-corr = df.corr(numeric_only=True)
-
-print(corr)
-sn.heatmap(corr, annot=True)
-# plt.show()
-
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import Normalizer
-
-y = df.reset_index()['moving_time']
-x = df.reset_index()[['downhill', 'uphill', 'length_3d', 'max_elevation']]
-
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.20, random_state=42)
-
-# Baseline Linear Regression
-lr = LinearRegression()
-lr.fit(x_train, y_train)
-
-y_pred_lr = lr.predict(x_test)
-r2 = r2_score(y_test, y_pred_lr)
-mse = mean_squared_error(y_test, y_pred_lr)
-
-# Mean Squared Error / R2
-print("r2:\t{}\nMSE: \t{}".format(r2, mse))
-
-# GradientBoostingRegressor
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+import joblib  # Zum Speichern & Laden von Modellen
 
-gbr = GradientBoostingRegressor(n_estimators=50, random_state=9000)
-gbr.fit(x_train, y_train)
-y_pred_gbr = gbr.predict(x_test)
-r2 = r2_score(y_test, y_pred_gbr)
-mse = mean_squared_error(y_test, y_pred_gbr)
+def connect_to_mongo(uri, db_name, collection_name):
+    """Stellt eine Verbindung zu MongoDB her und gibt die Collection zurück."""
+    client = MongoClient(uri)
+    db = client[db_name]
+    return db[collection_name]
 
-print("r2:\t{}\nMSE: \t{}".format(r2, mse))
+def load_data_from_mongo(collection):
+    """Lädt Daten aus MongoDB und gibt sie als DataFrame zurück."""
+    data = list(collection.find())
+    if not data:
+        raise ValueError("Keine Daten in der MongoDB-Collection gefunden.")
+    return pd.DataFrame(data)
 
-def din33466(uphill, downhill, distance):
-    km = distance / 1000.0
-    print(km)
-    vertical = downhill / 500.0 + uphill / 300.0
-    print(vertical)
-    horizontal = km / 4.0
-    print(horizontal)
-    return 3600.0 * (min(vertical, horizontal) / 2 + max(vertical, horizontal))
+def preprocess_data(df):
+    """Verarbeitet die Daten und bereitet sie für das Modell vor."""
+    df = df.dropna()  # Entferne fehlende Werte
+    df["Gipfelhöhe"] = df["Gipfel"].str.extract(r"(\d+)").astype(int)
+    df["Höhendifferenz"] = df["Höhendifferenz"].str.replace("\u2006", "", regex=False).str.replace("hm", "", regex=False).astype(int)
+    df["Routenlänge"] = df["Routenlänge"].str.replace("\u2006", "", regex=False).str.replace("m", "", regex=False).astype(int)
+    df["Schnee"] = df["Schnee"].str.extract(r"Ø (\d+)").astype(int)
+    df["Lawinenrisiko"] = df["Lawinenrisiko"].astype(float)
 
-def sac(uphill, distance):
-    km = distance / 1000.0
-    return 3600.0 * (uphill/400.0 + km /4.0)
+    def transform_difficulty(value):
+        base_mapping = {"L": 2.0, "WS": 3.0, "ZS": 4.0, "S": 5.0, "SS": 6.0}
+        modifier = 0.3 if "+" in value else -0.3 if "-" in value else 0.0
+        for key in base_mapping:
+            if key in value:
+                return base_mapping[key] + modifier
+        return None
 
-print("*** DEMO ***")
-downhill = 300
-uphill = 700
-length = 10000
-max_elevation = 1200
-print("Downhill: " + str(downhill))
-print("Uphill: " + str(uphill))
-print("Length: " + str(length))
-demoinput = [[downhill,uphill,length,max_elevation]]
-demodf = pd.DataFrame(columns=['downhill', 'uphill', 'length_3d', 'max_elevation'], data=demoinput)
-demooutput = gbr.predict(demodf)
-time = demooutput[0]
+    df["Schwierigkeitsgrad_num"] = df["Schwierigkeitsgrad"].apply(transform_difficulty)
+    return df
 
-import datetime
+def train_model(X, y):
+    """Trainiert ein Gradient Boosting Modell und gibt das beste Modell zurück."""
+    param_grid = {"n_estimators": [50, 100, 200], "learning_rate": [0.05, 0.1, 0.2], "max_depth": [2, 3, 4]}
+    grid = GridSearchCV(GradientBoostingRegressor(random_state=42), param_grid, cv=5, scoring="r2", n_jobs=-1)
+    grid.fit(X, y)
+    return grid.best_estimator_
 
-print("DIN: " + str(datetime.timedelta(seconds=din33466(uphill, downhill, length))))
-print("SAC: " + str(datetime.timedelta(seconds=sac(uphill, length))))
-print("Our Model: " + str(datetime.timedelta(seconds=time)))
+def main():
+    # Argumente für MongoDB-Verbindung
+    parser = argparse.ArgumentParser(description="Trainiere ein Modell basierend auf MongoDB-Daten.")
+    parser.add_argument("-u", "--uri", required=True, help="MongoDB-Verbindungs-URI mit Benutzername/Passwort")
+    args = parser.parse_args()
 
+    # MongoDB-Verbindung
+    mongo_uri = args.uri
+    mongo_db = "skitouren"
+    mongo_collection = "skitour"
 
-# Save To Disk
-import pickle
+    try:
+        collection = connect_to_mongo(mongo_uri, mongo_db, mongo_collection)
+        df = load_data_from_mongo(collection)
+        print("✅ Daten erfolgreich aus MongoDB geladen.")
 
-# save the classifier
-with open('GradientBoostingRegressor.pkl', 'wb') as fid:
-    pickle.dump(gbr, fid)    
+        # Datenvorverarbeitung
+        df = preprocess_data(df)
+        print("✅ Daten erfolgreich vorverarbeitet.")
 
-# load it again
-with open('GradientBoostingRegressor.pkl', 'rb') as fid:
-    gbr_loaded = pickle.load(fid)
+        # Features und Zielvariable
+        numerical_features = ["Höhendifferenz", "Routenlänge", "Schnee", "Gipfelhöhe", "Schwierigkeitsgrad_num"]
+        X = df[numerical_features]
+        y = df["Lawinenrisiko"]
+
+        # Train-Test-Split
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Modelltraining
+        best_model = train_model(X_train, y_train)
+        print("✅ Modell erfolgreich trainiert.")
+
+        # Evaluation
+        y_pred = best_model.predict(X_test)
+        print("R²-Score:", r2_score(y_test, y_pred))
+        print("MSE:", mean_squared_error(y_test, y_pred))
+
+        # Modell speichern
+        joblib.dump(best_model, "gradient_boosting_model.pkl")
+        print("✅ Modell gespeichert als 'gradient_boosting_model.pkl'.")
+
+    except Exception as e:
+        print(f"❌ Fehler: {e}")
+
+if __name__ == "__main__":
+    main()

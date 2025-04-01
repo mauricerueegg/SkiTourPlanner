@@ -1,0 +1,14 @@
+cd skitouren_scraper       
+
+python scraper.py 
+
+
+python mongo_import.py -c skitour -i downloads/skitouren_daten.jl -u 'mongodb+srv://mongodb:gAqtam-segves-rojri4@mdmcluster.mongocluster.cosmos.azure.com/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000'
+
+cd ..             
+
+cd model 
+
+python model.py -u 'mongodb+srv://mongodb:gAqtam-segves-rojri4@mdmcluster.mongocluster.cosmos.azure.com/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000' 
+
+
