@@ -1,4 +1,4 @@
-"""
+
 from utils import generate_route_urls, setup_driver
 from extractor import extract_tour_data
 import json
@@ -6,7 +6,7 @@ import time
 import os
 
 # Parameter
-NUM_IDS = 10
+NUM_IDS = 30
 ID_RANGE = (1, 400)
 
 # Speicherpfad für die Downloads
@@ -37,4 +37,3 @@ print(f"✅ Alle Daten erfolgreich gespeichert in {OUTPUT_FILE}")
 
 # Webdriver schließen
 driver.quit()
-"""

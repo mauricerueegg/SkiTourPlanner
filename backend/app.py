@@ -52,6 +52,12 @@ def predict():
         return jsonify({"lawinenrisiko": result})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/")
+def hello():
+    return "✅ Backend läuft!"
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
