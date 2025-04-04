@@ -27,7 +27,7 @@ jobs:
 
       - name: Upload data to MongoDB
         working-directory: ./scraper
-        run: python mongo_import.py -c skitour -i ./skitouren_daten.jl -u "${{ secrets.MONGODB_URI }}"
+        run: python mongo_import.py -c skitour -i ./downloads/skitouren_daten.jl -u "${{ secrets.MONGODB_URI }}"
 
       - name: Train model
         working-directory: ./model
