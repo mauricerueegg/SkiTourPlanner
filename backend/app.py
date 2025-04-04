@@ -49,6 +49,8 @@ with open(file_path, 'rb') as fid:
     model = pickle.load(fid)
 
 print("*** Sample calculation with model ***")
+
+
 def din33466(uphill, downhill, distance):
     km = distance / 1000.0
     vertical = downhill / 500.0 + uphill / 300.0
