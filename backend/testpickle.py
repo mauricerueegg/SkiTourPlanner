@@ -2,16 +2,15 @@ import joblib
 import pandas as pd
 
 # Öffne die .pkl-Datei mit joblib
-model = joblib.load('gradient_boosting_model.pkl')
+model = joblib.load('/Users/mauriceruegg/Library/CloudStorage/OneDrive-ZHAW/6. Semester/Model Deployment/SkiTourPlanner/model/gradient_boosting_model.pkl')
 
 # Beispiel-Eingabedaten für die Vorhersage
 example_input = {
     "Höhendifferenz": 1000,  # Beispielwert in Metern
     "Routenlänge": 2000,    # Beispielwert in Metern
-    "Schnee": 2000.0,         # Beispielwert in cm
-    "Gipfelhöhe": 3000      # Beispielwert in Metern
+    "Schnee": 2000.0,       # Beispielwert in cm
+    "Gipfelhöhe": 3000,     # Beispielwert in Metern
 }
-
 # Eingabedaten in ein DataFrame umwandeln
 input_df = pd.DataFrame([example_input])
 
