@@ -2,8 +2,6 @@ import datetime
 import os
 import pickle
 from pathlib import Path
-from joblib import load  # Importiere joblib.load
-
 
 import pandas as pd
 from azure.storage.blob import BlobServiceClient
@@ -44,8 +42,9 @@ else:
 
 # Lade das Modell
 file_path = Path(".", "../model/", "gradient_boosting_model.pkl")
-model = load(file_path)  # Verwende joblib.load statt pickle.load
-print(f"Geladenes Modell: {type(model)}")  # Sollte <class 'sklearn.ensemble._gb.GradientBoostingRegressor'> sein
+with open(file_path, 'rb') as fid:
+    model = pickle.load(fid)
+    print(f"Geladenes Modell: {type(model)}")  # Sollte <class 'sklearn.ensemble._gb.GradientBoostingRegressor'> sein
 
 # Überprüfen, ob das Modell korrekt geladen wurde
 if not hasattr(model, "predict"):
@@ -53,53 +52,76 @@ if not hasattr(model, "predict"):
 
 print("*** Sample calculation with model ***")
 
-def lawinenrisiko_predictor(Höhendifferenz, Routenlänge, Schnee, Gipfelhöhe):
-    """
-    Sagt das Lawinenrisiko basierend auf den Eingabeparametern vorher.
-    """
+
+def lawinepredictor(Gipfel, Start, Höhendifferenz, Routenlänge, Aufstiegszeit, Schwierigkeitsgrad):
     # Eingabedaten für das Modell vorbereiten
-    demoinput = [[Höhendifferenz, Routenlänge, Schnee, Gipfelhöhe]]
-    demodf = pd.DataFrame(columns=['Höhendifferenz', 'Routenlänge', 'Schnee', 'Gipfelhöhe'], data=demoinput)
+    demoinput = [[Gipfel, Start, Höhendifferenz, Routenlänge, Aufstiegszeit, Schwierigkeitsgrad]]
+    demodf = pd.DataFrame(columns=['Gipfel', 'Start', 'Höhendifferenz', 'Routenlänge', 'Aufstiegszeit', 'Schwierigkeitsgrad'], data=demoinput)
 
     # Modellvorhersage durchführen
     try:
         demooutput = model.predict(demodf)
-        lawinenrisiko = demooutput[0]
+        lawine_risk = demooutput[0]
     except Exception as e:
         print(f"Fehler bei der Modellvorhersage: {e}")
-        lawinenrisiko = None
+        lawine_risk = None
 
-    print(f"Our Model predicted Lawinenrisiko: {lawinenrisiko}")
-    return lawinenrisiko
+    print(f"Our Model predicted Lawinenrisiko: {lawine_risk}")
+    return lawine_risk
 
 
-@app.route("/api/predict", methods=["GET"])
-def predict_lawinenrisiko():
-    """
-    API-Endpunkt, um das Lawinenrisiko vorherzusagen.
-    """
+# Beispielwerte für die Features
+Gipfel = "Schollenhorn"
+Start = "Splügen"
+Höhendifferenz = 1270
+Routenlänge = 4734
+Aufstiegszeit = 4  # in Stunden
+Schwierigkeitsgrad = "WS+"
+
+# Vorhersage des Lawinenrisikos
+lawine_risk = lawinepredictor(Gipfel, Start, Höhendifferenz, Routenlänge, Aufstiegszeit, Schwierigkeitsgrad)
+print(f"Predicted Lawinenrisiko: {lawine_risk}")
+
+
+print("*** Init Flask App ***")
+app = Flask(__name__)
+cors = CORS(app)
+app = Flask(__name__, static_url_path='/', static_folder='../frontend/build')
+
+
+@app.route("/")
+def indexPage():
+    return send_file("../frontend/build/index.html")
+
+
+@app.route("/api/predict")
+def predict_lawine():
     # Eingabeparameter aus der Anfrage abrufen
+    Gipfel = request.args.get('Gipfel', default="Unknown", type=str)
+    Start = request.args.get('Start', default="Unknown", type=str)
     Höhendifferenz = request.args.get('Höhendifferenz', default=0, type=int)
     Routenlänge = request.args.get('Routenlänge', default=0, type=int)
-    Schnee = request.args.get('Schnee', default=0, type=float)
-    Gipfelhöhe = request.args.get('Gipfelhöhe', default=0, type=int)
+    Aufstiegszeit = request.args.get('Aufstiegszeit', default=0, type=float)
+    Schwierigkeitsgrad = request.args.get('Schwierigkeitsgrad', default="Unknown", type=str)
 
     # Eingabedaten für das Modell vorbereiten
-    demoinput = [[Höhendifferenz, Routenlänge, Schnee, Gipfelhöhe]]
-    demodf = pd.DataFrame(columns=['Höhendifferenz', 'Routenlänge', 'Schnee', 'Gipfelhöhe'], data=demoinput)
+    demoinput = [[Gipfel, Start, Höhendifferenz, Routenlänge, Aufstiegszeit, Schwierigkeitsgrad]]
+    demodf = pd.DataFrame(columns=['Gipfel', 'Start', 'Höhendifferenz', 'Routenlänge', 'Aufstiegszeit', 'Schwierigkeitsgrad'], data=demoinput)
 
     # Vorhersage mit dem Modell durchführen
     try:
         demooutput = model.predict(demodf)
-        lawinenrisiko = demooutput[0]  # Annahme: Das Modell gibt das Lawinenrisiko zurück
+        lawine_risk = demooutput[0]  # Annahme: Das Modell gibt das Lawinenrisiko zurück
     except Exception as e:
         return jsonify({'error': f"Fehler bei der Vorhersage: {str(e)}"}), 500
 
     # Ergebnis als JSON zurückgeben
     return jsonify({
-        'lawinenrisiko': lawinenrisiko,
+        'lawine_risk': lawine_risk,
+        'Gipfel': Gipfel,
+        'Start': Start,
         'Höhendifferenz': Höhendifferenz,
         'Routenlänge': Routenlänge,
-        'Schnee': Schnee,
-        'Gipfelhöhe': Gipfelhöhe
+        'Aufstiegszeit': Aufstiegszeit,
+        'Schwierigkeitsgrad': Schwierigkeitsgrad
     })

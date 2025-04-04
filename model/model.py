@@ -44,6 +44,7 @@ def train_model(X, y):
     param_grid = {"n_estimators": [50, 100, 200], "learning_rate": [0.05, 0.1, 0.2], "max_depth": [2, 3, 4]}
     grid = GridSearchCV(GradientBoostingRegressor(random_state=42), param_grid, cv=5, scoring="r2", n_jobs=-1)
     grid.fit(X, y)
+    print(f"Beste Parameter: {grid.best_params_}")
     return grid.best_estimator_
 
 def main():
@@ -58,6 +59,7 @@ def main():
     mongo_collection = "skitour"
 
     try:
+        # Daten aus MongoDB laden
         collection = connect_to_mongo(mongo_uri, mongo_db, mongo_collection)
         df = load_data_from_mongo(collection)
         print("✅ Daten erfolgreich aus MongoDB geladen.")
@@ -67,7 +69,7 @@ def main():
         print("✅ Daten erfolgreich vorverarbeitet.")
 
         # Features und Zielvariable
-        numerical_features = ["Höhendifferenz", "Routenlänge", "Schnee", "Gipfelhöhe", "Schwierigkeitsgrad_num"]
+        numerical_features = ["Höhendifferenz", "Routenlänge", "Schnee", "Gipfelhöhe"]  # Zielvariable entfernt
         X = df[numerical_features]
         y = df["Lawinenrisiko"]
 

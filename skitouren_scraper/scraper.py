@@ -1,3 +1,4 @@
+"""
 from utils import generate_route_urls, setup_driver
 from extractor import extract_tour_data
 import json
@@ -36,3 +37,4 @@ print(f"✅ Alle Daten erfolgreich gespeichert in {OUTPUT_FILE}")
 
 # Webdriver schließen
 driver.quit()
+"""
