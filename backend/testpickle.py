@@ -1,8 +1,20 @@
 import joblib
 import pandas as pd
+import joblib
+import pandas as pd
 
 # Öffne die .pkl-Datei mit joblib
-model = joblib.load('/Users/mauriceruegg/Library/CloudStorage/OneDrive-ZHAW/6. Semester/Model Deployment/SkiTourPlanner/model/gradient_boosting_model.pkl')
+model = joblib.load('../model/gradient_boosting_model.pkl')
+
+print(f"Methoden des Modells: {dir(model)}")
+
+
+"""
+# Öffne die .pkl-Datei mit joblib
+model = joblib.load('../model/gradient_boosting_model.pkl')
+
+print(f"Methoden des Modells: {dir(model)}")
+
 
 # Beispiel-Eingabedaten für die Vorhersage
 example_input = {
@@ -21,3 +33,4 @@ try:
     print(f"Vorhergesagtes Lawinenrisiko: {prediction[0]}")
 except Exception as e:
     print(f"Fehler bei der Vorhersage: {e}")
+"""

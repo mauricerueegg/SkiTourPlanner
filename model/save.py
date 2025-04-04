@@ -1,68 +1,30 @@
-# cd model
-# python save.py -c '***AZURE_STORAGE_CONNECTION_STRING***'
 
-import os, uuid
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+# save.py
+import os
 import argparse
+from azure.storage.blob import BlobServiceClient
 
-# https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python?tabs=managed-identity%2Croles-azure-portal%2Csign-in-azure-cli
-# Erlaubnis auf eigenes Konto geben :-)
+parser = argparse.ArgumentParser()
+parser.add_argument("-c", "--connection", required=True, help="Azure connection string")
+args = parser.parse_args()
 
-try:
-    print("Azure Blob Storage Python quickstart sample")
+client = BlobServiceClient.from_connection_string(args.connection)
+containers = client.list_containers()
 
-    parser = argparse.ArgumentParser(description='Upload Model')
-    parser.add_argument('-c', '--connection', required=True, help="azure storage connection string")
-    args = parser.parse_args()
+suffix = 0
+for container in containers:
+    if container.name.startswith("skitourplanner-model"):
+        try:
+            suffix = max(suffix, int(container.name.split("-")[-1]))
+        except:
+            continue
 
-    # Create the BlobServiceClient object
-    blob_service_client = BlobServiceClient.from_connection_string(args.connection)
+suffix += 1
+container_name = f"skitourplanner-model-{suffix}"
+print(f"Erstelle Container: {container_name}")
+client.create_container(container_name)
 
-    # default_credential = DefaultAzureCredential()
-    # Create the BlobServiceClient object
-    # blob_service_client = BlobServiceClient(account_url, credential=default_credential)
-
-    exists = False
-    containers = blob_service_client.list_containers(include_metadata=True)
-    suffix = 0
-    for container in containers:
-        existingContainerName = container['name']
-        print(existingContainerName, container['metadata'])
-        if existingContainerName.startswith("skitourplanner-model"):
-            parts = existingContainerName.split("-")
-            print(parts)
-            if (len(parts) == 3):
-                newSuffix = int(parts[-1])
-                if (newSuffix > suffix):
-                    suffix = newSuffix
-
-    suffix += 1
-    container_name = str("skitourplanner-model-" + str(suffix))
-    print("new container name: ")
-    print(container_name)
-
-    for container in containers:            
-        print("\t" + container['name'])
-        if container_name in container['name']:
-            print("EXISTIERTT BEREITS!")
-            exists = True
-
-    if not exists:
-        # Create the container
-        container_client = blob_service_client.create_container(container_name)
-
-    local_file_name = "gradient_boosting_model.pkl"
-    upload_file_path = os.path.join(".", local_file_name)
-
-    # Create a blob client using the local file name as the name for the blob
-    blob_client = blob_service_client.get_blob_client(container=container_name, blob=local_file_name)
-    print("\nUploading to Azure Storage as blob:\n\t" + local_file_name)
-
-    # Upload the created file
-    with open(file=upload_file_path, mode="rb") as data:
-        blob_client.upload_blob(data)
-
-except Exception as ex:
-    print('Exception:')
-    print(ex)
-    exit(1)
+blob_client = client.get_blob_client(container_name, "gradient_boosting_model.pkl")
+with open("gradient_boosting_model.pkl", "rb") as data:
+    blob_client.upload_blob(data)
+print("✅ Modell hochgeladen")

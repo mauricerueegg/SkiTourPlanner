@@ -1,31 +1,38 @@
+# model.py
 import argparse
 import pandas as pd
 from pymongo import MongoClient
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
-import joblib  # Zum Speichern & Laden von Modellen
+import joblib
+
+class AvalancheRiskModel:
+    def __init__(self, model):
+        self.model = model
+
+    def predict(self, input_data):
+        input_df = pd.DataFrame([input_data])
+        prediction = self.model.predict(input_df)
+        return prediction[0]
 
 def connect_to_mongo(uri, db_name, collection_name):
-    """Stellt eine Verbindung zu MongoDB her und gibt die Collection zurück."""
     client = MongoClient(uri)
     db = client[db_name]
     return db[collection_name]
 
 def load_data_from_mongo(collection):
-    """Lädt Daten aus MongoDB und gibt sie als DataFrame zurück."""
     data = list(collection.find())
     if not data:
         raise ValueError("Keine Daten in der MongoDB-Collection gefunden.")
     return pd.DataFrame(data)
 
 def preprocess_data(df):
-    """Verarbeitet die Daten und bereitet sie für das Modell vor."""
-    df = df.dropna()  # Entferne fehlende Werte
+    df = df.dropna()
     df["Gipfelhöhe"] = df["Gipfel"].str.extract(r"(\d+)").astype(int)
     df["Höhendifferenz"] = df["Höhendifferenz"].str.replace("\u2006", "", regex=False).str.replace("hm", "", regex=False).astype(int)
     df["Routenlänge"] = df["Routenlänge"].str.replace("\u2006", "", regex=False).str.replace("m", "", regex=False).astype(int)
-    df["Schnee"] = df["Schnee"].str.extract(r"Ø (\d+)").astype(int)
+    df["Schnee"] = df["Schnee"].str.extract(r"\u00d8\s?(\d+)").astype(int)
     df["Lawinenrisiko"] = df["Lawinenrisiko"].astype(float)
 
     def transform_difficulty(value):
@@ -40,57 +47,39 @@ def preprocess_data(df):
     return df
 
 def train_model(X, y):
-    """Trainiert ein Gradient Boosting Modell und gibt das beste Modell zurück."""
-    param_grid = {"n_estimators": [50, 100, 200], "learning_rate": [0.05, 0.1, 0.2], "max_depth": [2, 3, 4]}
+    param_grid = {
+        "n_estimators": [50, 100, 200],
+        "learning_rate": [0.05, 0.1, 0.2],
+        "max_depth": [2, 3, 4]
+    }
     grid = GridSearchCV(GradientBoostingRegressor(random_state=42), param_grid, cv=5, scoring="r2", n_jobs=-1)
     grid.fit(X, y)
     print(f"Beste Parameter: {grid.best_params_}")
     return grid.best_estimator_
 
 def main():
-    # Argumente für MongoDB-Verbindung
-    parser = argparse.ArgumentParser(description="Trainiere ein Modell basierend auf MongoDB-Daten.")
-    parser.add_argument("-u", "--uri", required=True, help="MongoDB-Verbindungs-URI mit Benutzername/Passwort")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-u", "--uri", required=True, help="MongoDB URI")
     args = parser.parse_args()
 
-    # MongoDB-Verbindung
-    mongo_uri = args.uri
-    mongo_db = "skitouren"
-    mongo_collection = "skitour"
+    collection = connect_to_mongo(args.uri, "skitouren", "skitour")
+    df = load_data_from_mongo(collection)
+    print("✅ Daten geladen")
+    df = preprocess_data(df)
+    print("✅ Daten vorverarbeitet")
 
-    try:
-        # Daten aus MongoDB laden
-        collection = connect_to_mongo(mongo_uri, mongo_db, mongo_collection)
-        df = load_data_from_mongo(collection)
-        print("✅ Daten erfolgreich aus MongoDB geladen.")
+    X = df[["Höhendifferenz", "Routenlänge", "Schnee", "Gipfelhöhe"]]
+    y = df["Lawinenrisiko"]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    model = train_model(X_train, y_train)
+    print("✅ Modell trainiert")
 
-        # Datenvorverarbeitung
-        df = preprocess_data(df)
-        print("✅ Daten erfolgreich vorverarbeitet.")
+    y_pred = model.predict(X_test)
+    print("R²-Score:", r2_score(y_test, y_pred))
+    print("MSE:", mean_squared_error(y_test, y_pred))
 
-        # Features und Zielvariable
-        numerical_features = ["Höhendifferenz", "Routenlänge", "Schnee", "Gipfelhöhe"]  # Zielvariable entfernt
-        X = df[numerical_features]
-        y = df["Lawinenrisiko"]
-
-        # Train-Test-Split
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-        # Modelltraining
-        best_model = train_model(X_train, y_train)
-        print("✅ Modell erfolgreich trainiert.")
-
-        # Evaluation
-        y_pred = best_model.predict(X_test)
-        print("R²-Score:", r2_score(y_test, y_pred))
-        print("MSE:", mean_squared_error(y_test, y_pred))
-
-        # Modell speichern
-        joblib.dump(best_model, "gradient_boosting_model.pkl")
-        print("✅ Modell gespeichert als 'gradient_boosting_model.pkl'.")
-
-    except Exception as e:
-        print(f"❌ Fehler: {e}")
+    joblib.dump(AvalancheRiskModel(model), "gradient_boosting_model.pkl")
+    print("✅ Modell gespeichert")
 
 if __name__ == "__main__":
     main()
