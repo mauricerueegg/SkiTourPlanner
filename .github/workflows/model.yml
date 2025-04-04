@@ -2,7 +2,6 @@ name: ModelOps (Update Model)
 # Requires GitHub Action Secrets: AZURE_STORAGE_CONNECTION_STRING, MONGODB_URI
 
 on:
-  # push:
   workflow_dispatch:
 
 jobs:
@@ -10,30 +9,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: checkout repo content
-        uses: actions/checkout@v3 # checkout the repository content to github runner
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: setup python
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.13.0' # install the python version needed
+          python-version: '3.13.2'  # Passe an deine Python-Version an
           cache: 'pip'
-          
-      - name: install python packages
+
+      - name: Install dependencies
         run: pip install -r requirements.txt
-          
-      - name: scrape hikr data 
-        working-directory: ./spider
-        run: scrapy crawl gpx -s CLOSESPIDER_PAGECOUNT=50 -o file.jl
 
-      - name: upload data to mongodb
-        working-directory: spider/downloads
-        run: python ./mongo_import.py -c tracks -i ../file.jl -u "${{secrets.MONGODB_URI}}"
+      - name: Run scraper
+        working-directory: ./scraper
+        run: python scraper.py
 
-      - name: build model
-        working-directory: model
-        run: python ./model.py -u "${{secrets.MONGODB_URI}}"
+      - name: Upload data to MongoDB
+        working-directory: ./scraper
+        run: python mongo_import.py -c skitour -i ./skitouren_daten.jl -u "${{ secrets.MONGODB_URI }}"
 
-      - name: upload model
-        working-directory: model
-        run: python ./save.py -c "${{secrets.AZURE_STORAGE_CONNECTION_STRING}}"
+      - name: Train model
+        working-directory: ./model
+        run: python model.py -u "${{ secrets.MONGODB_URI }}"
+
+      - name: Save model to Azure Blob
+        working-directory: ./model
+        run: python save.py -c "${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}"
+
