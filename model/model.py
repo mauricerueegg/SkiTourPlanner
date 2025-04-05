@@ -78,7 +78,7 @@ def main():
     print("R²-Score:", r2_score(y_test, y_pred))
     print("MSE:", mean_squared_error(y_test, y_pred))
 
-    joblib.dump(AvalancheRiskModel(model), "gradient_boosting_model.pkl")
+    joblib.dump(model, "gradient_boosting_model.pkl")
     print("✅ Modell gespeichert")
 
 if __name__ == "__main__":
