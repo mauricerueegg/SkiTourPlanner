@@ -3,11 +3,12 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 const config = {
 	preprocess: vitePreprocess(),
+
 	kit: {
 		adapter: adapter({
-			pages: 'frontend/build',
-			assets: 'frontend/build',
-			fallback: 'index.html' // <- wichtig für SPA!
+			pages: 'build',
+			assets: 'build',
+			fallback: 'index.html' // wichtig für SPA
 		})
 	}
 };
