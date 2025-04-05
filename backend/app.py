@@ -7,7 +7,7 @@ from flask_cors import CORS
 from azure.storage.blob import BlobServiceClient
 from pathlib import Path
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="../frontend/build", static_url_path="")
 CORS(app)
 
 # Verbindungszeichenkette prüfen
@@ -52,9 +52,13 @@ def predict():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/")
-def hello():
-    return "✅ Backend läuft!"
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve(path):
+    from flask import send_from_directory
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, "index.html")
+    
 
-if __name__ == "__main__":
-    app.run(debug=True)
