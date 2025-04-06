@@ -7,6 +7,12 @@
 	let error: string | null = null;
 	let loading = false;
 
+	function risikoFarbe(r: number): string {
+		if (r < 0.3) return 'success';  // grün
+		if (r < 0.6) return 'warning';  // orange
+		return 'danger';                // rot
+	}
+
 	async function predict() {
 		loading = true;
 		error = null;
@@ -45,6 +51,24 @@
 	rel="stylesheet"
 />
 
+<style>
+	.risk-circle {
+		width: 60px;
+		height: 60px;
+		border-radius: 50%;
+		margin: 0 auto 10px auto;
+	}
+	.success {
+		background-color: #28a745;
+	}
+	.warning {
+		background-color: #ffc107;
+	}
+	.danger {
+		background-color: #dc3545;
+	}
+</style>
+
 <div class="container py-5">
 	<div class="row justify-content-center">
 		<div class="col-md-6">
@@ -72,11 +96,16 @@
 							{loading ? 'Berechne...' : 'Vorhersagen'}
 						</button>
 					</form>
+
 					{#if risiko !== null}
-						<div class="alert alert-success mt-4 text-center">
-							Vorhergesagtes Risiko: {risiko.toFixed(2)}
+						<div class="text-center mt-4">
+							<div class="risk-circle {risikoFarbe(risiko)}"></div>
+							<div class="alert alert-{risikoFarbe(risiko)} mt-2">
+								Vorhergesagtes Risiko: {risiko.toFixed(2)}
+							</div>
 						</div>
 					{/if}
+
 					{#if error}
 						<div class="alert alert-danger mt-4 text-center">
 							{error}
