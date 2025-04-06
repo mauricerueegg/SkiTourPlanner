@@ -6,7 +6,7 @@ import time
 import os
 
 # Parameter
-NUM_IDS = 200
+NUM_IDS = 20
 ID_RANGE = (1, 1000)
 
 # Speicherpfad für die Downloads

@@ -33,10 +33,10 @@ jobs:
       - name: Build and push container image to GHCR
         uses: docker/build-push-action@v2
         with:
-          context: .                       # wichtig: Kontext ist Root-Verzeichnis
+          context: .                     
           push: true
           tags: ghcr.io/${{ env.REPO }}:${{ github.sha }}
-          file: ./Dockerfile               # falls dein Dockerfile im Root liegt
+          file: ./Dockerfile            
 
   deploy:
     needs: build  
