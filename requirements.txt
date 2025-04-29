@@ -80,7 +80,7 @@ fonttools==4.56.0
     # via
     #   -r requirements.in
     #   matplotlib
-h11==0.14.0
+h11==0.16.0
     # via
     #   -r requirements.in
     #   uvicorn
